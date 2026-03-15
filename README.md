@@ -28,10 +28,6 @@ dataset = load_dataset("kushsaraf/robot-intelligence-dataset")
 
 After loading, align the splits and column names with what the notebook expects (train/test feature matrices, activity labels, optional subject IDs). The notebook currently reads from the local `robot-intelligence-dataset/` folder; you can adapt the “Load the Dataset” cell to build DataFrames from the Hugging Face dataset instead.
 
-### Local dataset (optional)
-
-If you clone this repo, the same data is under `robot-intelligence-dataset/perception_dataset/` (train/test splits, activity labels, feature list, and inertial signal files). The notebook uses this path by default.
-
 ---
 
 ## Repository structure
@@ -43,7 +39,7 @@ robot-intelligence-ml/
 │   ├── README.md                # Perception (HAR) model details
 │   └── pm_notebook.ipynb        # Full pipeline: load → preprocess → train → evaluate
 └── robot-intelligence-dataset/
-    └── perception_dataset/      # UCI HAR–style data (also on Hugging Face)
+    └── perception_dataset/      # UCI HAR–style data (on Hugging Face)
         ├── activity_labels.txt
         ├── features.txt, features_info.txt
         ├── train/               # X_train.txt, y_train.txt, subject_train.txt, Inertial Signals/

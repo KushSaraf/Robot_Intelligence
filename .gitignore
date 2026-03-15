@@ -28,4 +28,4 @@ dist/
 .idea/
 
 # Dataset
-datasets/
+robot-intelligence-dataset/
