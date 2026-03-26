@@ -1,14 +1,18 @@
 # Robot Intelligence ML
 
-Machine learning for robot intelligence, starting with **perception**: human activity recognition (HAR) from smartphone inertial sensor data. This repository contains the perception dataset (UCI HAR–style), a Jupyter notebook pipeline for training and comparing classifiers, and instructions to use the data from **Hugging Face**.
+Machine learning for robot intelligence across two tasks — **perception** (human activity recognition from inertial sensors) and **navigation** (robot movement decisions from ultrasonic range sensors). Each task has its own dataset, notebook pipeline, and model comparison.
 
 ---
 
 ## Overview
 
 - **Perception model**: Classifies human activities (walking, sitting, standing, etc.) from 561 time/frequency features derived from accelerometer and gyroscope signals (Samsung Galaxy S II, 50 Hz).
-- **Dataset**: 30 subjects, 6 activity classes, 7,352 training and 2,947 test samples. Features are normalized to `[-1, 1]`.
-- **Models**: SVM (RBF), Random Forest, KNN, Logistic Regression, and a small Neural Network; preprocessing with `StandardScaler`, optional PCA; evaluation includes confusion matrices, feature importance, and cross-validation.
+  - 30 subjects · 6 activity classes · 7,352 train / 2,947 test samples · features normalized to `[-1, 1]`
+  - Models: SVM, Random Forest, KNN, Logistic Regression, Neural Network
+
+- **Navigation model**: Classifies a mobile robot's movement decision from 24 ultrasonic distance sensors arranged 360° around its waist.
+  - 5,456 samples · 4 classes (`Move-Forward`, `Sharp-Right-Turn`, `Slight-Right-Turn`, `Slight-Left-Turn`)
+  - Models: Decision Tree, Random Forest, SVM, KNN; includes EDA, sensor correlation, feature importance, 5-fold CV
 
 ---
 
@@ -34,16 +38,24 @@ After loading, align the splits and column names with what the notebook expects 
 
 ```
 robot-intelligence-ml/
-├── README.md                    # This file
+├── README.md                      # This file
 ├── perception_model/
-│   ├── README.md                # Perception (HAR) model details
-│   └── pm_notebook.ipynb        # Full pipeline: load → preprocess → train → evaluate
+│   ├── README.md                  # Perception (HAR) model details
+│   └── pm_notebook.ipynb          # load → preprocess → train 5 models → evaluate
+├── navigation_model/
+│   ├── README.md                  # Navigation model details
+│   └── nm_notebook.ipynb          # EDA → preprocess → train 4 models → compare
 └── robot-intelligence-dataset/
-    └── perception_dataset/      # UCI HAR–style data (on Hugging Face)
-        ├── activity_labels.txt
-        ├── features.txt, features_info.txt
-        ├── train/               # X_train.txt, y_train.txt, subject_train.txt, Inertial Signals/
-        └── test/                # X_test.txt, y_test.txt, subject_test.txt, Inertial Signals/
+    ├── perception_dataset/        # UCI HAR–style data (on Hugging Face)
+    │   ├── activity_labels.txt
+    │   ├── features.txt, features_info.txt
+    │   ├── train/                 # X_train.txt, y_train.txt, subject_train.txt, Inertial Signals/
+    │   └── test/                  # X_test.txt, y_test.txt, subject_test.txt, Inertial Signals/
+    └── navigation_dataset/        # UCI Wall-Following Robot Navigation data
+        ├── Wall-following.names
+        ├── sensor_readings_24.data  # 24 ultrasonic sensors (used by nm_notebook)
+        ├── sensor_readings_4.data
+        └── sensor_readings_2.data
 ```
 
 ---
@@ -57,6 +69,19 @@ robot-intelligence-ml/
 | **Best reported test accuracy** | ~95.5% (Logistic Regression) |
 
 See **`perception_model/README.md`** for dataset stats, model table, and step-by-step notebook outline.
+
+---
+
+## Navigation model (Wall-Following)
+
+| Item | Description |
+|------|-------------|
+| **Notebook** | `navigation_model/nm_notebook.ipynb` |
+| **Sections** | Load data → EDA (class distribution, per-class sensor averages, correlation heatmap) → preprocess (StandardScaler) → train 4 classifiers → confusion matrices → test vs CV comparison → Random Forest feature importance → best-model report |
+| **Dataset** | `sensor_readings_24.data` — 5,456 samples, 24 ultrasonic sensors |
+| **Classes** | `Move-Forward`, `Sharp-Right-Turn`, `Slight-Right-Turn`, `Slight-Left-Turn` |
+
+See **`navigation_model/README.md`** for full dataset stats, model table, and notebook outline.
 
 ---
 
@@ -81,9 +106,14 @@ See **`perception_model/README.md`** for dataset stats, model table, and step-by
    pip install datasets
    ```
 
-3. **Run the notebook**
+3. **Run the notebooks**
 
-   Open `perception_model/pm_notebook.ipynb` in Jupyter or VS Code, select the `.venv` kernel, and run all cells. For local data, run from the repo root so that the path `../robot-intelligence-dataset/perception_dataset` resolves correctly.
+   Open either notebook in Jupyter or VS Code, select the `.venv` kernel, and run all cells. Always launch Jupyter from the repo root so that relative dataset paths resolve correctly.
+
+   ```bash
+   jupyter notebook perception_model/pm_notebook.ipynb
+   jupyter notebook navigation_model/nm_notebook.ipynb
+   ```
 
 ---
 
