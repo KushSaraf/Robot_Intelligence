@@ -1,6 +1,6 @@
 # Robot Intelligence ML
 
-Machine learning for robot intelligence across two tasks — **perception** (human activity recognition from inertial sensors) and **navigation** (robot movement decisions from ultrasonic range sensors). Each task has its own dataset, notebook pipeline, and model comparison.
+Machine learning for robot intelligence across three tasks — **perception** (human activity recognition from inertial sensors), **navigation** (robot movement decisions from ultrasonic range sensors), and **failure detection** (classifying robot execution failures from force/torque signals). Each task has its own dataset, notebook pipeline, and model comparison.
 
 ---
 
@@ -13,6 +13,10 @@ Machine learning for robot intelligence across two tasks — **perception** (hum
 - **Navigation model**: Classifies a mobile robot's movement decision from 24 ultrasonic distance sensors arranged 360° around its waist.
   - 5,456 samples · 4 classes (`Move-Forward`, `Sharp-Right-Turn`, `Slight-Right-Turn`, `Slight-Left-Turn`)
   - Models: Decision Tree, Random Forest, SVM, KNN; includes EDA, sensor correlation, feature importance, 5-fold CV
+
+- **Failure detection model**: Classifies robot execution failures from 6-axis force/torque time-series (15 samples after failure detected).
+  - ~463 instances · 5 learning problems (lp1–lp5) · up to 11 failure classes
+  - Models: Logistic Regression, Decision Tree, Random Forest, SVM, Gradient Boosting; 114 features (raw + stats)
 
 ---
 
@@ -45,17 +49,26 @@ robot-intelligence-ml/
 ├── navigation_model/
 │   ├── README.md                  # Navigation model details
 │   └── nm_notebook.ipynb          # EDA → preprocess → train 4 models → compare
+├── failure_detection_model/
+│   ├── README.md                  # Failure detection model details
+│   └── fd_notebook.ipynb          # parse → EDA → train 5 models → compare
 └── robot-intelligence-dataset/
     ├── perception_dataset/        # UCI HAR–style data (on Hugging Face)
     │   ├── activity_labels.txt
     │   ├── features.txt, features_info.txt
     │   ├── train/                 # X_train.txt, y_train.txt, subject_train.txt, Inertial Signals/
     │   └── test/                  # X_test.txt, y_test.txt, subject_test.txt, Inertial Signals/
-    └── navigation_dataset/        # UCI Wall-Following Robot Navigation data
-        ├── Wall-following.names
-        ├── sensor_readings_24.data  # 24 ultrasonic sensors (used by nm_notebook)
-        ├── sensor_readings_4.data
-        └── sensor_readings_2.data
+    ├── navigation_dataset/        # UCI Wall-Following Robot Navigation data
+    │   ├── Wall-following.names
+    │   ├── sensor_readings_24.data  # 24 ultrasonic sensors (used by nm_notebook)
+    │   ├── sensor_readings_4.data
+    │   └── sensor_readings_2.data
+    └── failure_dataset/           # UCI Robot Execution Failures
+        ├── lp1.data               # approach to grasp
+        ├── lp2.data               # transfer of part
+        ├── lp3.data               # position after transfer failure
+        ├── lp4.data               # approach to ungrasp
+        └── lp5.data               # motion with part
 ```
 
 ---
@@ -82,6 +95,19 @@ See **`perception_model/README.md`** for dataset stats, model table, and step-by
 | **Classes** | `Move-Forward`, `Sharp-Right-Turn`, `Slight-Right-Turn`, `Slight-Left-Turn` |
 
 See **`navigation_model/README.md`** for full dataset stats, model table, and notebook outline.
+
+---
+
+## Failure detection model (Robot Execution Failures)
+
+| Item | Description |
+|------|-------------|
+| **Notebook** | `failure_detection_model/fd_notebook.ipynb` |
+| **Sections** | Parse lp*.data files → EDA (class dist., time-series plots, PCA) → preprocess → train 5 classifiers → confusion matrices → test vs CV comparison → RF feature importance → best-model report |
+| **Dataset** | `lp1–lp5.data` — ~463 instances, 15×6 F/T window → 114 features |
+| **Classes** | `normal`, `collision`, `obstruction`, `fr_collision`, `back_col`, `toe_up`, `slight_collision`, `bottom_collision`, `bottom_obstruction`, `collision_in_part`, `collision_in_tool` |
+
+See **`failure_detection_model/README.md`** for full dataset stats, feature engineering details, and notebook outline.
 
 ---
 
@@ -113,6 +139,7 @@ See **`navigation_model/README.md`** for full dataset stats, model table, and no
    ```bash
    jupyter notebook perception_model/pm_notebook.ipynb
    jupyter notebook navigation_model/nm_notebook.ipynb
+   jupyter notebook failure_detection_model/fd_notebook.ipynb
    ```
 
 ---
