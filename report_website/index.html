@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Intelligence ML — Project Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #060912;
+            --s1: #0d1424;
+            --s2: #111d35;
+            --s3: #1a2847;
+            --c1: #818cf8;
+            --c1d: #4f46e5;
+            --c1g: rgba(99, 102, 241, .15);
+            --c2: #22d3ee;
+            --c2g: rgba(34, 211, 238, .12);
+            --c3: #f472b6;
+            --c3g: rgba(244, 114, 182, .12);
+            --c4: #4ade80;
+            --c4g: rgba(74, 222, 128, .12);
+            --c5: #fb923c;
+            --c5g: rgba(251, 146, 60, .12);
+            --text: #f1f5f9;
+            --muted: #64748b;
+            --sub: #94a3b8;
+            --bord: rgba(255, 255, 255, .07);
+            --r: 20px;
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--c1d);
+            border-radius: 4px
+        }
+
+        /* ── Canvas BG ───── */
+        #canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .5
+        }
+
+        /* ── Layout ───────── */
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2
+        }
+
+        /* ── Nav ──────────── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: .9rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 9, 18, .75);
+            backdrop-filter: blur(24px) saturate(1.8);
+            border-bottom: 1px solid var(--bord);
+        }
+
+        .logo {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .logo-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--c1d), var(--c2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: .25rem
+        }
+
+        .nav-pills a {
+            color: var(--sub);
+            text-decoration: none;
+            font-size: .8rem;
+            font-weight: 500;
+            padding: .35rem .85rem;
+            border-radius: 99px;
+            transition: all .2s;
+        }
+
+        .nav-pills a:hover,
+        .nav-pills a.active {
+            color: var(--text);
+            background: rgba(255, 255, 255, .07)
+        }
+
+        /* ── Hero ─────────── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 7rem 2rem 5rem;
+            position: relative;
+        }
+
+        .hero-inner {
+            max-width: 860px;
+            position: relative;
+            z-index: 2
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(99, 102, 241, .12) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: rgba(99, 102, 241, .1);
+            border: 1px solid rgba(99, 102, 241, .3);
+            color: var(--c1);
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: .45rem 1.1rem;
+            border-radius: 99px;
+            margin-bottom: 2rem;
+        }
+
+        .eyebrow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--c2);
+            animation: pulse 2s infinite
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: .5;
+                transform: scale(.8)
+            }
+        }
+
+        h1 {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -.04em;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 .grad {
+            background: linear-gradient(135deg, #fff 0%, var(--c2) 40%, var(--c1) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--sub);
+            max-width: 580px;
+            margin: 0 auto 3rem;
+            font-weight: 400;
+            line-height: 1.7;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: var(--r);
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .hstat {
+            flex: 1;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border-right: 1px solid var(--bord);
+            position: relative;
+        }
+
+        .hstat:last-child {
+            border-right: none
+        }
+
+        .hstat::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity .3s;
+            background: linear-gradient(135deg, var(--c1g), transparent);
+        }
+
+        .hstat:hover::before {
+            opacity: 1
+        }
+
+        .hstat-num {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -.03em;
+            background: linear-gradient(135deg, var(--c2), var(--c1));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+        }
+
+        .hstat-lbl {
+            font-size: .72rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-top: .25rem
+        }
+
+        .btn-row {
+            display: flex;
+            gap: .85rem;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .85rem 1.75rem;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: .9rem;
+            text-decoration: none;
+            transition: all .25s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--c1d), #6366f1);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, .5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(79, 70, 229, .65)
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--bord);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--c1);
+            background: var(--c1g)
+        }
+
+        /* ── Section headers ─ */
+        .shead {
+            text-align: center;
+            margin-bottom: 4rem
+        }
+
+        .slabel {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--c2);
+            margin-bottom: .85rem;
+            padding: .3rem .9rem;
+            border: 1px solid rgba(34, 211, 238, .2);
+            background: rgba(34, 211, 238, .05);
+            border-radius: 99px;
+        }
+
+        .stitle {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -.03em;
+            margin-bottom: .85rem
+        }
+
+        .ssub {
+            color: var(--sub);
+            font-size: 1rem;
+            max-width: 580px;
+            margin: 0 auto
+        }
+
+        section {
+            padding: 6rem 0;
+            position: relative;
+            z-index: 2
+        }
+
+        .sep {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--bord), transparent);
+            max-width: 1180px;
+            margin: 0 auto
+        }
+
+        /* ── Module cards ──── */
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem
+        }
+
+        @media(max-width:700px) {
+            .mod-grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .mod {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: 24px;
+            padding: 2rem;
+            overflow: hidden;
+            position: relative;
+            transition: transform .3s, box-shadow .3s;
+        }
+
+        .mod:hover {
+            transform: translateY(-5px)
+        }
+
+        .mod::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            opacity: .07;
+            filter: blur(40px);
+            transition: opacity .3s;
+        }
+
+        .mod:hover::before {
+            opacity: .18
+        }
+
+        .mod.m1:hover {
+            box-shadow: 0 20px 60px rgba(99, 102, 241, .2)
+        }
+
+        .mod.m2:hover {
+            box-shadow: 0 20px 60px rgba(34, 211, 238, .15)
+        }
+
+        .mod.m3:hover {
+            box-shadow: 0 20px 60px rgba(244, 114, 182, .15)
+        }
+
+        .mod.m4:hover {
+            box-shadow: 0 20px 60px rgba(74, 222, 128, .15)
+        }
+
+        .mod.m1::before {
+            background: var(--c1)
+        }
+
+        .mod.m2::before {
+            background: var(--c2)
+        }
+
+        .mod.m3::before {
+            background: var(--c3)
+        }
+
+        .mod.m4::before {
+            background: var(--c4)
+        }
+
+        .mod-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .m1 .mod-icon {
+            background: var(--c1g);
+            border: 1px solid rgba(99, 102, 241, .25)
+        }
+
+        .m2 .mod-icon {
+            background: var(--c2g);
+            border: 1px solid rgba(34, 211, 238, .2)
+        }
+
+        .m3 .mod-icon {
+            background: var(--c3g);
+            border: 1px solid rgba(244, 114, 182, .2)
+        }
+
+        .m4 .mod-icon {
+            background: var(--c4g);
+            border: 1px solid rgba(74, 222, 128, .2)
+        }
+
+        .mod h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin-bottom: .5rem
+        }
+
+        .mod .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            color: var(--muted);
+            margin-bottom: .8rem
+        }
+
+        .mod p {
+            font-size: .88rem;
+            color: var(--sub);
+            line-height: 1.7;
+            margin-bottom: 1.25rem
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .4rem
+        }
+
+        .chip {
+            font-size: .7rem;
+            font-family: 'JetBrains Mono', monospace;
+            padding: .22rem .65rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--bord);
+            color: var(--sub);
+        }
+
+        .chip.hi {
+            background: rgba(99, 102, 241, .12);
+            border-color: rgba(99, 102, 241, .25);
+            color: #a5b4fc
+        }
+
+        /* ── Why cards ──────── */
+        .why4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 3rem
+        }
+
+        @media(max-width:900px) {
+            .why4 {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        .wcard {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: 18px;
+            padding: 1.6rem;
+            transition: transform .25s;
+        }
+
+        .wcard:hover {
+            transform: translateY(-3px);
+            border-color: rgba(99, 102, 241, .3)
+        }
+
+        .wcard .wi {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block
+        }
+
+        .wcard h4 {
+            font-size: .9rem;
+            font-weight: 700;
+            margin-bottom: .4rem
+        }
+
+        .wcard p {
+            font-size: .8rem;
+            color: var(--sub);
+            line-height: 1.65
+        }
+
+        /* ── Dataset panels ── */
+        .ds-tabs {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap
+        }
+
+        .tab-btn {
+            padding: .5rem 1.2rem;
+            border-radius: 10px;
+            font-size: .82rem;
+            font-weight: 600;
+            background: transparent;
+            border: 1px solid var(--bord);
+            color: var(--sub);
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .tab-btn.on {
+            background: var(--c1g);
+            border-color: rgba(99, 102, 241, .4);
+            color: var(--c1)
+        }
+
+        .ds-panel {
+            display: none;
+            animation: fadein .25s ease
+        }
+
+        .ds-panel.on {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem
+        }
+
+        @media(max-width:700px) {
+            .ds-panel.on {
+                grid-template-columns: 1fr
+            }
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .ds-card {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: 20px;
+            overflow: hidden
+        }
+
+        .ds-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--s2);
+            border-bottom: 1px solid var(--bord)
+        }
+
+        .ds-header h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .2rem
+        }
+
+        .ds-header p {
+            font-size: .78rem;
+            color: var(--muted)
+        }
+
+        .ds-body {
+            padding: 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        td,
+        th {
+            padding: .7rem 1.25rem;
+            font-size: .82rem;
+            text-align: left;
+            border-bottom: 1px solid var(--bord)
+        }
+
+        th {
+            background: var(--s2);
+            font-size: .7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 600
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, .02)
+        }
+
+        td:first-child {
+            color: var(--sub);
+            font-weight: 500
+        }
+
+        /* ── Results ─────────── */
+        .res-tabs {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap
+        }
+
+        .res-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem
+        }
+
+        @media(max-width:700px) {
+            .res-grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .res-card {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: 20px;
+            overflow: hidden
+        }
+
+        .rc-head {
+            padding: 1.15rem 1.5rem;
+            background: var(--s2);
+            border-bottom: 1px solid var(--bord);
+            display: flex;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .rc-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0
+        }
+
+        .rc-head h4 {
+            font-size: .92rem;
+            font-weight: 700
+        }
+
+        .bars {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: .85rem
+        }
+
+        .bar-r {
+            display: grid;
+            grid-template-columns: 120px 1fr 52px;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .bar-lbl {
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--sub)
+        }
+
+        .bar-tr {
+            height: 8px;
+            background: rgba(255, 255, 255, .05);
+            border-radius: 99px;
+            overflow: hidden
+        }
+
+        .bar-fi {
+            height: 8px;
+            border-radius: 99px;
+            transition: width 1.2s cubic-bezier(.4, 0, .2, 1);
+            animation: barGrow 1.2s ease both;
+        }
+
+        @keyframes barGrow {
+            from {
+                width: 0% !important
+            }
+        }
+
+        .bar-v {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--c2);
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .best-row {
+            margin: .1rem 1.5rem 1.25rem;
+            background: rgba(74, 222, 128, .08);
+            border: 1px solid rgba(74, 222, 128, .2);
+            border-radius: 10px;
+            padding: .65rem 1rem;
+            font-size: .78rem;
+            color: var(--c4);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        /* gradient overrides per accent */
+        .g1 {
+            background: linear-gradient(90deg, var(--c1d), #818cf8)
+        }
+
+        .g2 {
+            background: linear-gradient(90deg, var(--c2), #0ea5e9)
+        }
+
+        .g3 {
+            background: linear-gradient(90deg, var(--c3), #e879f9)
+        }
+
+        .g4 {
+            background: linear-gradient(90deg, var(--c5), #fbbf24)
+        }
+
+        /* ── RL section ──────── */
+        .rl-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem
+        }
+
+        @media(max-width:700px) {
+            .rl-grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .env-box {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: 20px;
+            padding: 0;
+            overflow: hidden
+        }
+
+        .ev-head {
+            padding: 1.2rem 1.5rem;
+            background: var(--s2);
+            border-bottom: 1px solid var(--bord)
+        }
+
+        .ev-head h4 {
+            font-size: .95rem;
+            font-weight: 700;
+            margin-bottom: .15rem
+        }
+
+        .ev-head p {
+            font-size: .75rem;
+            color: var(--muted)
+        }
+
+        .agent-table-wrap {
+            overflow-x: auto
+        }
+
+        /* ── Pipeline timeline ─ */
+        .pipe {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: .75rem
+        }
+
+        @media(max-width:900px) {
+            .pipe {
+                grid-template-columns: repeat(3, 1fr)
+            }
+        }
+
+        @media(max-width:500px) {
+            .pipe {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        .pstep {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            border-radius: 16px;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            position: relative;
+            transition: transform .25s, box-shadow .25s
+        }
+
+        .pstep:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px var(--c1g);
+            border-color: rgba(99, 102, 241, .3)
+        }
+
+        .pnum {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--c1d), var(--c2));
+            color: #fff;
+            font-size: .85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto .75rem;
+        }
+
+        .pstep h4 {
+            font-size: .8rem;
+            font-weight: 700;
+            margin-bottom: .3rem
+        }
+
+        .pstep p {
+            font-size: .72rem;
+            color: var(--muted);
+            line-height: 1.5
+        }
+
+        /* ── DQN arch ─────── */
+        .arch {
+            display: flex;
+            gap: 0;
+            align-items: stretch;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0
+        }
+
+        .arch-box {
+            background: var(--s1);
+            border: 1px solid var(--bord);
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            min-width: 130px;
+            position: relative;
+        }
+
+        .arch-box:first-child {
+            border-radius: 16px 0 0 16px
+        }
+
+        .arch-box:last-child {
+            border-radius: 0 16px 16px 0
+        }
+
+        .arch-box::after {
+            content: '→';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: var(--c1);
+            z-index: 1;
+            font-weight: 700;
+        }
+
+        .arch-box:last-child::after {
+            display: none
+        }
+
+        .aicon {
+            font-size: 1.6rem;
+            margin-bottom: .5rem;
+            display: block
+        }
+
+        .aname {
+            font-size: .75rem;
+            font-weight: 700;
+            margin-bottom: .25rem
+        }
+
+        .adim {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .7rem;
+            color: var(--c2)
+        }
+
+        /* ── Badges ─────────── */
+        .badge {
+            display: inline-block;
+            padding: .18rem .65rem;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 700
+        }
+
+        .bg {
+            background: rgba(74, 222, 128, .12);
+            color: var(--c4)
+        }
+
+        .bb {
+            background: rgba(99, 102, 241, .12);
+            color: #a5b4fc
+        }
+
+        .by {
+            background: rgba(251, 191, 36, .12);
+            color: #fbbf24
+        }
+
+        .br {
+            background: rgba(248, 113, 113, .12);
+            color: #f87171
+        }
+
+        /* ── Callout ─────────── */
+        .callout {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .1), rgba(34, 211, 238, .07));
+            border: 1px solid rgba(99, 102, 241, .25);
+            border-radius: 16px;
+            padding: 1.5rem;
+            font-size: .9rem;
+            color: var(--sub);
+            line-height: 1.7;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            margin-top: 2rem;
+        }
+
+        .callout-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            margin-top: .1rem
+        }
+
+        /* ── Footer ──────────── */
+        footer {
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid var(--bord);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .footer-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .82rem;
+            transition: color .2s
+        }
+
+        .footer-links a:hover {
+            color: var(--text)
+        }
+
+        footer p {
+            font-size: .78rem
+        }
+
+        /* ── Reveal anim ─────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: none
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <!-- NAV -->
+    <nav id="nav">
+        <div class="logo">
+            <div class="logo-dot">🤖</div>
+            Robot Intelligence ML
+        </div>
+        <div class="nav-pills">
+            <a href="#overview">Overview</a>
+            <a href="#datasets">Datasets</a>
+            <a href="#models">Models</a>
+            <a href="#results">Results</a>
+            <a href="#rl">RL Agent</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-inner">
+            <div class="eyebrow"><span class="eyebrow-dot"></span>ML Project Report · 2025</div>
+            <h1><span class="grad">Robot Intelligence</span><br>with Machine Learning</h1>
+            <p class="hero-sub">
+                Four ML modules. Three real-world robot datasets. One reinforcement learning environment.
+                A complete pipeline from raw sensor data to autonomous agents.
+            </p>
+            <div class="hero-stats">
+                <div class="hstat"><span class="hstat-num">4</span>
+                    <div class="hstat-lbl">ML Modules</div>
+                </div>
+                <div class="hstat"><span class="hstat-num">3</span>
+                    <div class="hstat-lbl">UCI Datasets</div>
+                </div>
+                <div class="hstat"><span class="hstat-num">16+</span>
+                    <div class="hstat-lbl">Models Trained</div>
+                </div>
+                <div class="hstat"><span class="hstat-num">4</span>
+                    <div class="hstat-lbl">RL Agents</div>
+                </div>
+            </div>
+            <div class="btn-row">
+                <a href="#overview" class="btn btn-primary">Explore Report ↓</a>
+                <a href="https://huggingface.co/datasets/kushsaraf/robot-intelligence-dataset" target="_blank"
+                    class="btn btn-outline">🤗 Dataset on HuggingFace</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+        <div class="wrap">
+            <div class="shead reveal">
+                <div class="slabel">Project Overview</div>
+                <h2 class="stitle">Four Challenges. One Framework.</h2>
+                <p class="ssub">Each module tackles a distinct robot intelligence problem with the most appropriate ML
+                    paradigm.</p>
+            </div>
+            <div class="mod-grid">
+                <div class="mod m1 reveal">
+                    <div class="mod-icon">🧠</div>
+                    <h3>Perception Model</h3>
+                    <div class="mono">pm_notebook.ipynb</div>
+                    <p>Human Activity Recognition from 561 time/frequency features extracted from smartphone
+                        accelerometer and gyroscope signals (50 Hz, 30 subjects).</p>
+                    <div class="chips">
+                        <span class="chip hi">SVM</span><span class="chip hi">Random Forest</span>
+                        <span class="chip hi">Logistic Regression</span><span class="chip hi">KNN</span>
+                        <span class="chip hi">Neural Network</span>
+                        <span class="chip">561 features</span><span class="chip">6 classes</span>
+                    </div>
+                </div>
+                <div class="mod m2 reveal">
+                    <div class="mod-icon">🗺️</div>
+                    <h3>Navigation Model</h3>
+                    <div class="mono">nm_notebook.ipynb</div>
+                    <p>Maps 24 ultrasonic distance sensor readings (360° around a SCITOS G5 robot waist) to one of four
+                        wall-following movement decisions.</p>
+                    <div class="chips">
+                        <span class="chip hi">Decision Tree</span><span class="chip hi">Random Forest</span>
+                        <span class="chip hi">SVM</span><span class="chip hi">KNN</span>
+                        <span class="chip">24 sensors</span><span class="chip">4 classes</span>
+                    </div>
+                </div>
+                <div class="mod m3 reveal">
+                    <div class="mod-icon">⚠️</div>
+                    <h3>Failure Detection Model</h3>
+                    <div class="mono">fd_notebook.ipynb</div>
+                    <p>Classifies robot arm execution failures from 6-axis force/torque time-series. Custom parser +
+                        feature engineering yields 114 features per instance.</p>
+                    <div class="chips">
+                        <span class="chip hi">Logistic Regression</span><span class="chip hi">Decision Tree</span>
+                        <span class="chip hi">Random Forest</span><span class="chip hi">SVM</span><span
+                            class="chip hi">Gradient Boosting</span>
+                        <span class="chip">114 features</span><span class="chip">11 classes</span>
+                    </div>
+                </div>
+                <div class="mod m4 reveal">
+                    <div class="mod-icon">🚕</div>
+                    <h3>RL Decision Model</h3>
+                    <div class="mono">rl_notebook.ipynb</div>
+                    <p>Teaches a robot taxi to pick up passengers and navigate a 5×5 grid through trial and error, with
+                        no labelled training examples needed.</p>
+                    <div class="chips">
+                        <span class="chip hi">Q-Learning</span><span class="chip hi">SARSA</span>
+                        <span class="chip hi">DQN (PyTorch)</span><span class="chip hi">Random Baseline</span>
+                        <span class="chip">500 states</span><span class="chip">6 actions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- DATASETS -->
+    <section id="datasets">
+        <div class="wrap">
+            <div class="shead reveal">
+                <div class="slabel">Datasets</div>
+                <h2 class="stitle">Why These Datasets?</h2>
+                <p class="ssub">All three datasets are from UCI ML Repository — collected from real hardware under real
+                    conditions.</p>
+            </div>
+
+            <div class="why4 reveal">
+                <div class="wcard"><span class="wi">📡</span>
+                    <h4>Real Sensors</h4>
+                    <p>Data from actual robots and smartphones — not simulated. Real noise, real variability, real edge
+                        cases.</p>
+                </div>
+                <div class="wcard"><span class="wi">🧩</span>
+                    <h4>Diverse Structures</h4>
+                    <p>Pre-engineered vectors · raw time-series · spatial sensor arrays — each demands different
+                        preprocessing.</p>
+                </div>
+                <div class="wcard"><span class="wi">⚖️</span>
+                    <h4>Class Imbalance</h4>
+                    <p>Navigation has 40% Forward vs 6% Slight-Left. Failure detection has rare classes. Tests
+                        real-world robustness.</p>
+                </div>
+                <div class="wcard"><span class="wi">📈</span>
+                    <h4>Graded Difficulty</h4>
+                    <p>HAR (~95%) → Navigation (~99% with NL boundaries) → Failure (small sample, 11 classes).</p>
+                </div>
+            </div>
+
+            <div class="ds-tabs reveal" id="dsTabs">
+                <button class="tab-btn on" onclick="showDS(0)">🧠 Perception (HAR)</button>
+                <button class="tab-btn" onclick="showDS(1)">🗺️ Navigation (Wall-Following)</button>
+                <button class="tab-btn" onclick="showDS(2)">⚠️ Failure Detection</button>
+            </div>
+
+            <div class="ds-panel on reveal" id="ds0">
+                <div class="ds-card">
+                    <div class="ds-header">
+                        <h4>UCI Human Activity Recognition</h4>
+                        <p>Samsung Galaxy S II · 50 Hz · 30 subjects</p>
+                    </div>
+                    <div class="ds-body">
+                        <table>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Instances</td>
+                                <td>10,299 &nbsp;(7,352 train / 2,947 test)</td>
+                            </tr>
+                            <tr>
+                                <td>Features</td>
+                                <td>561 time &amp; frequency domain features</td>
+                            </tr>
+                            <tr>
+                                <td>Sensors</td>
+                                <td>Accelerometer + Gyroscope (3-axis each)</td>
+                            </tr>
+                            <tr>
+                                <td>Classes</td>
+                                <td>6 activities</td>
+                            </tr>
+                            <tr>
+                                <td>Normalised</td>
+                                <td>[-1, 1] per feature column</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="ds-card">
+                    <div class="ds-header">
+                        <h4>Activity Classes</h4>
+                        <p>Collected from 30 volunteers aged 19–48</p>
+                    </div>
+                    <div class="ds-body">
+                        <table>
+                            <tr>
+                                <th>ID</th>
+                                <th>Activity</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Walking</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Walking Upstairs</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Walking Downstairs</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Sitting</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Standing</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Laying</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="callout">
+                        <span class="callout-icon">💡</span>
+                        Sitting ↔ Standing are the hardest pair to distinguish — both involve similar sensor orientation
+                        with minimal acceleration variance.
+                    </div>
+                </div>
+            </div>
+
+            <div class="ds-panel reveal" id="ds1">
+                <div class="ds-card">
+                    <div class="ds-header">
+                        <h4>UCI Wall-Following Robot Navigation</h4>
+                        <p>SCITOS G5 robot · 9 samples/sec · 24-sensor array</p>
+                    </div>
+                    <div class="ds-body">
+                        <table>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Instances</td>
+                                <td>5,456</td>
+                            </tr>
+                            <tr>
+                                <td>Features</td>
+                                <td>24 ultrasonic sensors (US1–US24)</td>
+                            </tr>
+                            <tr>
+                                <td>File used</td>
+                                <td>sensor_readings_24.data</td>
+                            </tr>
+                            <tr>
+                                <td>Class distribution</td>
+                                <td>Forward 40% · Sharp-Right 38% · Slight-Right 15% · Slight-Left 6%</td>
+                            </tr>
+                            <tr>
+                                <td>Key property</td>
+                                <td>Non-linearly separable by design</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="ds-card">
+                    <div class="ds-header">
+                        <h4>Movement Decisions</h4>
+                        <p>Sensor → action mapping</p>
+                    </div>
+                    <div class="ds-body">
+                        <table>
+                            <tr>
+                                <th>Action</th>
+                                <th>Typical sensor pattern</th>
+                            </tr>
+                            <tr>
+                                <td>Move Forward</td>
+                                <td>Front clear, side walls detected</td>
+                            </tr>
+                            <tr>
+                                <td>Sharp Right Turn</td>
+                                <td>Front blocked or left wall close</td>
+                            </tr>
+                            <tr>
+                                <td>Slight Right Turn</td>
+                                <td>Moderate front clearance</td>
+                            </tr>
+                            <tr>
+                                <td>Slight Left Turn</td>
+                                <td>Right side approach correction</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="callout">
+                        <span class="callout-icon">💡</span>
+                        Critical insight: Front sensors (US1, US2) and 90° side sensors (US7, US19) dominate feature
+                        importance — directional bias confirmed.
+                    </div>
+                </div>
+            </div>
+
+            <div class="ds-panel reveal" id="ds2">
+                <div class="ds-card">
+                    <div class="ds-header">
+                        <h4>UCI Robot Execution Failures</h4>
+                        <p>6-axis force/torque · 5 learning problems</p>
+                    </div>
+                    <div class="ds-body">
+                        <table>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Files</td>
+                                <td>lp1.data — lp5.data</td>
+                            </tr>
+                            <tr>
+                                <td>Window</td>
+                                <td>15 time-steps × 6 channels (Fx Fy Fz Tx Ty Tz)</td>
+                            </tr>
+                            <tr>
+                                <td>Instances</td>
+                                <td>~463 across all tasks</td>
+                            </tr>
+                            <tr>
+                                <td>Raw features</td>
+                                <td>90 (flattened window)</td>
+                            </tr>
+                            <tr>
+                                <td>Stat features</td>
+                                <td>24 (mean·std·min·max per axis)</td>
+                            </tr>
+                            <tr>
+                                <td>Total features</td>
+                                <td><strong>114</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="ds-card">
+                    <div class="ds-header">
+                        <h4>Learning Problems</h4>
+                        <p>5 distinct robot manipulation tasks</p>
+                    </div>
+                    <div class="ds-body">
+                        <table>
+                            <tr>
+                                <th>File</th>
+                                <th>Task</th>
+                            </tr>
+                            <tr>
+                                <td>lp1</td>
+                                <td>Approach to grasp position</td>
+                            </tr>
+                            <tr>
+                                <td>lp2</td>
+                                <td>Transfer of a part</td>
+                            </tr>
+                            <tr>
+                                <td>lp3</td>
+                                <td>Position after transfer failure</td>
+                            </tr>
+                            <tr>
+                                <td>lp4</td>
+                                <td>Approach to ungrasp position</td>
+                            </tr>
+                            <tr>
+                                <td>lp5</td>
+                                <td>Motion with a part</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="callout">
+                        <span class="callout-icon">💡</span>
+                        Collision events show sharp Fz spikes in timesteps 0–2. Obstruction shows sustained Fz
+                        depression. Visible in per-class time-series EDA.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- RESULTS -->
+    <section id="results">
+        <div class="wrap">
+            <div class="shead reveal">
+                <div class="slabel">Evaluation Results</div>
+                <h2 class="stitle">Model Performance</h2>
+                <p class="ssub">80/20 stratified split + 5-fold cross-validation. StandardScaler applied before all
+                    distance / margin-based models.</p>
+            </div>
+
+            <div class="res-grid">
+                <!-- Perception -->
+                <div class="res-card reveal">
+                    <div class="rc-head">
+                        <div class="rc-icon" style="background:var(--c1g)">🧠</div>
+                        <div>
+                            <h4>Perception — HAR</h4>
+                        </div>
+                    </div>
+                    <div class="bars">
+                        <div class="bar-r">
+                            <div class="bar-lbl">Logistic Reg.</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g1" style="width:95.5%"></div>
+                            </div>
+                            <div class="bar-v">95.5%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">Neural Net</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g1" style="width:93%"></div>
+                            </div>
+                            <div class="bar-v">93%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">SVM (RBF)</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g1" style="width:94%"></div>
+                            </div>
+                            <div class="bar-v">94%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">Random Forest</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g1" style="width:92%"></div>
+                            </div>
+                            <div class="bar-v">92%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">KNN</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g1" style="width:90%"></div>
+                            </div>
+                            <div class="bar-v">90%</div>
+                        </div>
+                    </div>
+                    <div class="best-row">🏆 Best: Logistic Regression — 95.5% test accuracy</div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="res-card reveal">
+                    <div class="rc-head">
+                        <div class="rc-icon" style="background:var(--c2g)">🗺️</div>
+                        <div>
+                            <h4>Navigation — Wall-Following</h4>
+                        </div>
+                    </div>
+                    <div class="bars">
+                        <div class="bar-r">
+                            <div class="bar-lbl">Random Forest</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g2" style="width:99%"></div>
+                            </div>
+                            <div class="bar-v">~99%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">SVM (RBF)</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g2" style="width:98%"></div>
+                            </div>
+                            <div class="bar-v">~98%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">KNN</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g2" style="width:97%"></div>
+                            </div>
+                            <div class="bar-v">~97%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">Decision Tree</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g2" style="width:96%"></div>
+                            </div>
+                            <div class="bar-v">~96%</div>
+                        </div>
+                    </div>
+                    <div class="best-row"
+                        style="background:rgba(34,211,238,.07);border-color:rgba(34,211,238,.2);color:var(--c2)">🏆
+                        Best: Random Forest — ~99% test accuracy</div>
+                </div>
+
+                <!-- Failure -->
+                <div class="res-card reveal">
+                    <div class="rc-head">
+                        <div class="rc-icon" style="background:var(--c3g)">⚠️</div>
+                        <div>
+                            <h4>Failure Detection — Robot Arm</h4>
+                        </div>
+                    </div>
+                    <div class="bars">
+                        <div class="bar-r">
+                            <div class="bar-lbl">Gradient Boost</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g3" style="width:98%"></div>
+                            </div>
+                            <div class="bar-v">~98%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">Random Forest</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g3" style="width:97%"></div>
+                            </div>
+                            <div class="bar-v">~97%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">SVM (RBF)</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g3" style="width:93%"></div>
+                            </div>
+                            <div class="bar-v">~93%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">Decision Tree</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g3" style="width:91%"></div>
+                            </div>
+                            <div class="bar-v">~91%</div>
+                        </div>
+                        <div class="bar-r">
+                            <div class="bar-lbl">Logistic Reg.</div>
+                            <div class="bar-tr">
+                                <div class="bar-fi g3" style="width:78%"></div>
+                            </div>
+                            <div class="bar-v">~78%</div>
+                        </div>
+                    </div>
+                    <div class="best-row"
+                        style="background:rgba(244,114,182,.07);border-color:rgba(244,114,182,.2);color:var(--c3)">🏆
+                        Best: Gradient Boosting — ~98% test accuracy</div>
+                </div>
+
+                <!-- Key Insights -->
+                <div class="res-card reveal"
+                    style="background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(34,211,238,.04))">
+                    <div class="rc-head" style="background:transparent">
+                        <div class="rc-icon" style="background:rgba(251,146,60,.12)">💡</div>
+                        <div>
+                            <h4>Cross-Module Insights</h4>
+                        </div>
+                    </div>
+                    <div style="padding:0 1.5rem 1.5rem">
+                        <table>
+                            <tr>
+                                <th>Observation</th>
+                                <th>Finding</th>
+                            </tr>
+                            <tr>
+                                <td>LR wins HAR</td>
+                                <td>561 features already highly discriminative at linear level</td>
+                            </tr>
+                            <tr>
+                                <td>RF wins Navigation</td>
+                                <td>Non-linear boundaries need ensemble trees</td>
+                            </tr>
+                            <tr>
+                                <td>GB wins Failure</td>
+                                <td>Boosting handles class imbalance + small sample best</td>
+                            </tr>
+                            <tr>
+                                <td>Feature stats</td>
+                                <td>Mean/std/min/max carry ~40% of failure detection importance</td>
+                            </tr>
+                            <tr>
+                                <td>Scaling critical</td>
+                                <td>KNN, SVM, LR all improve >5% after StandardScaler</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- RL AGENT -->
+    <section id="rl">
+        <div class="wrap">
+            <div class="shead reveal">
+                <div class="slabel">Reinforcement Learning</div>
+                <h2 class="stitle">🚕 Taxi-v3 Autonomous Agent</h2>
+                <p class="ssub">No labelled data. The agent learns entirely from reward signals by interacting with the
+                    environment.</p>
+            </div>
+
+            <div class="rl-grid">
+                <div class="env-box reveal">
+                    <div class="ev-head">
+                        <h4>Environment — Taxi-v3</h4>
+                        <p>Gymnasium · 5×5 grid world</p>
+                    </div>
+                    <table>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>State space</td>
+                            <td>500 discrete states</td>
+                        </tr>
+                        <tr>
+                            <td>Action space</td>
+                            <td>6 (N·S·E·W·Pick·Drop)</td>
+                        </tr>
+                        <tr>
+                            <td>Reward</td>
+                            <td>+20 drop · −10 illegal · −1 step</td>
+                        </tr>
+                        <tr>
+                            <td>Challenge</td>
+                            <td>Sparse reward + delayed feedback</td>
+                        </tr>
+                        <tr>
+                            <td>ε-greedy</td>
+                            <td>1.0 → 0.05 (decay 0.995 / ep)</td>
+                        </tr>
+                        <tr>
+                            <td>γ discount</td>
+                            <td>0.99</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="env-box reveal">
+                    <div class="ev-head">
+                        <h4>Agent Comparison</h4>
+                        <p>Performance after training</p>
+                    </div>
+                    <div class="agent-table-wrap">
+                        <table>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Type</th>
+                                <th>Expected Reward</th>
+                                <th>Converges</th>
+                            </tr>
+                            <tr>
+                                <td>Random</td>
+                                <td><span class="badge br">Baseline</span></td>
+                                <td>~−800</td>
+                                <td>Never</td>
+                            </tr>
+                            <tr>
+                                <td>Q-Learning</td>
+                                <td><span class="badge bb">Off-policy</span></td>
+                                <td>~+7</td>
+                                <td>~500 eps</td>
+                            </tr>
+                            <tr>
+                                <td>SARSA</td>
+                                <td><span class="badge by">On-policy</span></td>
+                                <td>~+6</td>
+                                <td>~600 eps</td>
+                            </tr>
+                            <tr>
+                                <td>DQN</td>
+                                <td><span class="badge bg">Deep RL</span></td>
+                                <td>~+4</td>
+                                <td>~400 eps</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DQN Architecture -->
+            <div class="reveal">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;letter-spacing:-.02em">DQN
+                    Architecture (PyTorch)</h3>
+                <div class="arch">
+                    <div class="arch-box"><span class="aicon">📥</span>
+                        <div class="aname">Input</div>
+                        <div class="adim">500-dim one-hot</div>
+                    </div>
+                    <div class="arch-box"><span class="aicon">⚡</span>
+                        <div class="aname">Linear + ReLU</div>
+                        <div class="adim">500 → 64</div>
+                    </div>
+                    <div class="arch-box"><span class="aicon">⚡</span>
+                        <div class="aname">Linear + ReLU</div>
+                        <div class="adim">64 → 64</div>
+                    </div>
+                    <div class="arch-box"><span class="aicon">📤</span>
+                        <div class="aname">Q-values</div>
+                        <div class="adim">64 → 6</div>
+                    </div>
+                </div>
+                <div
+                    style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1.5rem">
+                    <div class="wcard"><span class="wi">🗃️</span>
+                        <h4>Replay Buffer</h4>
+                        <p>3,000 transitions. Random mini-batch (size 32) breaks temporal correlations in training.</p>
+                    </div>
+                    <div class="wcard"><span class="wi">🎯</span>
+                        <h4>Target Network</h4>
+                        <p>Separate frozen copy, synced every 25 episodes. Prevents oscillating Q-value targets.</p>
+                    </div>
+                    <div class="wcard"><span class="wi">⚡</span>
+                        <h4>Train Every 4 Steps</h4>
+                        <p>Skips gradient update 3/4 steps — reduces CPU overhead by ~4× vs. training every step.</p>
+                    </div>
+                    <div class="wcard"><span class="wi">💡</span>
+                        <h4>Why Tabular Wins Here</h4>
+                        <p>500 states fits perfectly in a Q-table. DQN shines in continuous/huge state spaces like Atari
+                            or robot joints.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- PIPELINE -->
+    <section>
+        <div class="wrap">
+            <div class="shead reveal">
+                <div class="slabel">Methodology</div>
+                <h2 class="stitle">Consistent ML Pipeline</h2>
+                <p class="ssub">Every supervised module follows the same 7-step reproducible workflow.</p>
+            </div>
+            <div class="pipe reveal">
+                <div class="pstep">
+                    <div class="pnum">1</div>
+                    <h4>Load &amp; Inspect</h4>
+                    <p>Shape, nulls, class distribution</p>
+                </div>
+                <div class="pstep">
+                    <div class="pnum">2</div>
+                    <h4>EDA</h4>
+                    <p>Distributions, correlations, PCA</p>
+                </div>
+                <div class="pstep">
+                    <div class="pnum">3</div>
+                    <h4>Preprocess</h4>
+                    <p>Encode → split → StandardScaler</p>
+                </div>
+                <div class="pstep">
+                    <div class="pnum">4</div>
+                    <h4>Train</h4>
+                    <p>4–5 models, same seed=42</p>
+                </div>
+                <div class="pstep">
+                    <div class="pnum">5</div>
+                    <h4>Evaluate</h4>
+                    <p>Test acc + 5-fold CV ± std</p>
+                </div>
+                <div class="pstep">
+                    <div class="pnum">6</div>
+                    <h4>Feature Importance</h4>
+                    <p>RF importances + domain mapping</p>
+                </div>
+                <div class="pstep">
+                    <div class="pnum">7</div>
+                    <h4>Best Model</h4>
+                    <p>Full classification report</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sep"></div>
+
+    <!-- FOOTER -->
+    <footer>
+        <span class="footer-logo">🤖 Robot Intelligence ML</span>
+        <div class="footer-links">
+            <a href="#overview">Overview</a>
+            <a href="#datasets">Datasets</a>
+            <a href="#models">Models</a>
+            <a href="#results">Results</a>
+            <a href="#rl">RL Agent</a>
+            <a href="https://huggingface.co/datasets/kushsaraf/robot-intelligence-dataset" target="_blank">🤗
+                HuggingFace</a>
+        </div>
+        <p>Built with Python · scikit-learn · PyTorch · Gymnasium · Jupyter</p>
+    </footer>
+
+    <script>
+        // ── Particle canvas ──────────────────────────────────────
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, particles = [];
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor() { this.reset(true) }
+            reset(init) {
+                this.x = Math.random() * W;
+                this.y = init ? Math.random() * H : H + 10;
+                this.vy = -(0.1 + Math.random() * 0.3);
+                this.vx = (Math.random() - 0.5) * 0.15;
+                this.r = Math.random() * 1.5 + 0.3;
+                this.alpha = Math.random() * 0.6 + 0.1;
+                this.color = Math.random() > 0.6 ? '#818cf8' : Math.random() > 0.5 ? '#22d3ee' : '#f472b6';
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.y < -10) this.reset(false);
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+        function anim() {
+            ctx.clearRect(0, 0, W, H);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(anim);
+        }
+        anim();
+
+        // ── Dataset tabs ──────────────────────────────────────────
+        function showDS(i) {
+            document.querySelectorAll('.ds-panel').forEach((p, j) => p.classList.toggle('on', j === i));
+            document.querySelectorAll('#dsTabs .tab-btn').forEach((b, j) => b.classList.toggle('on', j === i));
+        }
+
+        // ── Scroll reveal ─────────────────────────────────────────
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+            });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+        // ── Animate bars on reveal ────────────────────────────────
+        const barObs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.querySelectorAll('.bar-fi').forEach(b => {
+                        b.style.animationPlayState = 'running';
+                    });
+                    barObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.res-card').forEach(c => {
+            c.querySelectorAll('.bar-fi').forEach(b => b.style.animationPlayState = 'paused');
+            barObs.observe(c);
+        });
+
+        // ── Active nav ─────────────────────────────────────────────
+        const sections = document.querySelectorAll('section[id]');
+        const navAs = document.querySelectorAll('.nav-pills a');
+        window.addEventListener('scroll', () => {
+            let cur = '';
+            sections.forEach(s => { if (scrollY >= s.offsetTop - 130) cur = s.id; });
+            navAs.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${cur}`));
+        }, { passive: true });
+    </script>
+</body>
+
+</html>
