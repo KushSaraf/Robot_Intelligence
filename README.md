@@ -59,8 +59,7 @@ robot-intelligence-ml/
 ├── decision_model/
 │   ├── README.md                  # RL decision model details
 │   └── rl_notebook.ipynb          # env → random → Q-Learning → SARSA → DQN → compare
-├── report_website/
-│   └── index.html                 # Interactive project report site (open in browser)
+├── index.html                     # Interactive project report site (open in browser)
 └── robot-intelligence-dataset/
     ├── perception_dataset/        # UCI HAR–style data (on Hugging Face)
     │   ├── activity_labels.txt
